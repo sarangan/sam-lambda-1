@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Hello World with SAM
 
+// common for all the function but can override by indiviual function
 Globals:
   Function:
     MemorySize: 128
@@ -12,18 +13,18 @@ Resources:
   eventLogger:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: logger.handler
-      Timeout: 3
-      Events:
-        GetLogs:
+      Handler: logger.handler // filename -> export function
+      Timeout: 3  // overrriding global
+      Events: // api definition 
+        GetLogs: // name
           Type: Api
           Properties:
             Path: /logs
             Method: get
-        FileUpload:
-          Type: S3
+        FileUpload: // name event
+          Type: S3 // s3 event notification
           Properties:
-            Bucket: !Ref MyBucket
+            Bucket: !Ref MyBucket // see bellow definition 
             Events: s3:ObjectCreated:*
 
   MyBucket:
@@ -39,3 +40,10 @@ Resources:
           Properties:
             Path: /add
             Method: post
+            
+  TestAPI: // api definition can remove it and define as implicity and SAM will generate
+    Type: AWS:: Serverless::Api
+    Properties:
+      StageName: test
+      DefinitionUri: swagger-def.yml
+      
